@@ -1,0 +1,648 @@
+<title>Thinking Gym — Field Notebook</title>
+<style>
+  :root {
+    --bg: #E6E8E4;
+    --surface: #FFFFFF;
+    --surface-2: #DEE1DA;
+    --border: #C9CDC3;
+    --text: #1B1D1A;
+    --muted: #63685F;
+    --accent: #2A4B7C;
+    --accent-ink: #1F3A61;
+    --accent-contrast: #FFFFFF;
+    --danger: #9A3B2E;
+    --good: #3E6B4F;
+    --shadow: 0 1px 2px rgba(20, 20, 15, 0.08), 0 4px 14px rgba(20, 20, 15, 0.06);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #14171A;
+      --surface: #1D2126;
+      --surface-2: #262B31;
+      --border: #2C3137;
+      --text: #E7E9EA;
+      --muted: #9096A0;
+      --accent: #6C93D6;
+      --accent-ink: #89ABE3;
+      --accent-contrast: #0E1216;
+      --danger: #D97C6C;
+      --good: #79C398;
+      --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 6px 20px rgba(0, 0, 0, 0.35);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #14171A; --surface: #1D2126; --surface-2: #262B31; --border: #2C3137;
+    --text: #E7E9EA; --muted: #9096A0; --accent: #6C93D6; --accent-ink: #89ABE3;
+    --accent-contrast: #0E1216; --danger: #D97C6C; --good: #79C398;
+    --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 6px 20px rgba(0,0,0,0.35);
+  }
+  :root[data-theme="light"] {
+    --bg: #E6E8E4; --surface: #FFFFFF; --surface-2: #DEE1DA; --border: #C9CDC3;
+    --text: #1B1D1A; --muted: #63685F; --accent: #2A4B7C; --accent-ink: #1F3A61;
+    --accent-contrast: #FFFFFF; --danger: #9A3B2E; --good: #3E6B4F;
+    --shadow: 0 1px 2px rgba(20,20,15,0.08), 0 4px 14px rgba(20,20,15,0.06);
+  }
+
+  * { box-sizing: border-box; }
+
+  .tg-root {
+    font-family: -apple-system, "Segoe UI", system-ui, sans-serif;
+    color: var(--text);
+    background:
+      repeating-linear-gradient(
+        to bottom,
+        transparent, transparent 31px,
+        color-mix(in srgb, var(--border) 55%, transparent) 32px
+      ),
+      var(--bg);
+    min-height: 100%;
+    padding: 32px 20px 64px;
+    display: flex;
+    justify-content: center;
+  }
+
+  .tg-page {
+    width: 100%;
+    max-width: 640px;
+  }
+
+  .tg-mono {
+    font-family: ui-monospace, "Cascadia Code", "SF Mono", Consolas, monospace;
+  }
+
+  .tg-header {
+    margin-bottom: 28px;
+  }
+
+  .tg-eyebrow {
+    font-family: ui-monospace, "Cascadia Code", "SF Mono", Consolas, monospace;
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .tg-title {
+    font-family: ui-monospace, "Cascadia Code", "SF Mono", Consolas, monospace;
+    font-size: 28px;
+    font-weight: 700;
+    margin: 4px 0 6px;
+    text-wrap: balance;
+    letter-spacing: -0.01em;
+  }
+
+  .tg-sub {
+    color: var(--muted);
+    font-size: 14px;
+    max-width: 58ch;
+    line-height: 1.5;
+  }
+
+  .tg-sub a { color: var(--accent); }
+
+  .tg-tabs {
+    display: flex;
+    gap: 4px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 20px;
+  }
+
+  .tg-tab {
+    font-family: ui-monospace, "Cascadia Code", "SF Mono", Consolas, monospace;
+    font-size: 13px;
+    letter-spacing: 0.02em;
+    background: none;
+    border: none;
+    color: var(--muted);
+    padding: 10px 14px;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transform: translateY(1px);
+  }
+
+  .tg-tab:hover { color: var(--text); }
+
+  .tg-tab.active {
+    color: var(--text);
+    border-bottom-color: var(--accent);
+  }
+
+  .tg-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    box-shadow: var(--shadow);
+    padding: 20px;
+    margin-bottom: 16px;
+  }
+
+  .tg-instructions {
+    font-size: 13.5px;
+    color: var(--muted);
+    line-height: 1.55;
+    margin: 0 0 16px;
+    padding-bottom: 16px;
+    border-bottom: 1px dashed var(--border);
+  }
+
+  .tg-field { margin-bottom: 14px; }
+
+  .tg-field:last-child { margin-bottom: 0; }
+
+  .tg-label {
+    display: block;
+    font-family: ui-monospace, "Cascadia Code", "SF Mono", Consolas, monospace;
+    font-size: 11.5px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+
+  .tg-textarea, .tg-input {
+    width: 100%;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--text);
+    font-family: -apple-system, "Segoe UI", system-ui, sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+    padding: 9px 11px;
+    resize: vertical;
+  }
+
+  .tg-textarea:focus, .tg-input:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+
+  .tg-timer-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .tg-timer {
+    font-family: ui-monospace, "Cascadia Code", "SF Mono", Consolas, monospace;
+    font-variant-numeric: tabular-nums;
+    font-size: 30px;
+    font-weight: 700;
+    min-width: 84px;
+  }
+
+  .tg-timer.warn { color: var(--danger); }
+
+  .tg-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--muted);
+    flex-shrink: 0;
+  }
+  .tg-dot.running { background: var(--good); }
+
+  .tg-btn {
+    font-family: ui-monospace, "Cascadia Code", "SF Mono", Consolas, monospace;
+    font-size: 12.5px;
+    letter-spacing: 0.03em;
+    border-radius: 4px;
+    padding: 8px 14px;
+    border: 1px solid var(--border);
+    background: var(--surface-2);
+    color: var(--text);
+    cursor: pointer;
+  }
+  .tg-btn:hover { border-color: var(--muted); }
+  .tg-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .tg-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+  .tg-btn.primary {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--accent-contrast);
+  }
+  .tg-btn.primary:hover { border-color: var(--accent-ink); }
+
+  .tg-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 18px;
+    flex-wrap: wrap;
+  }
+
+  .tg-note {
+    font-size: 12.5px;
+    color: var(--good);
+    margin-top: 10px;
+  }
+
+  .tg-journal-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin: 36px 0 14px;
+  }
+
+  .tg-journal-head h2 {
+    font-family: ui-monospace, "Cascadia Code", "SF Mono", Consolas, monospace;
+    font-size: 16px;
+    margin: 0;
+  }
+
+  .tg-journal-count {
+    font-family: ui-monospace, "Cascadia Code", "SF Mono", Consolas, monospace;
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .tg-entry {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    box-shadow: var(--shadow);
+    padding: 14px 16px;
+    margin-bottom: 10px;
+  }
+  .tg-entry:nth-child(odd) { transform: rotate(-0.3deg); }
+  .tg-entry:nth-child(even) { transform: rotate(0.3deg); }
+
+  .tg-entry-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 6px;
+  }
+
+  .tg-entry-type {
+    font-family: ui-monospace, "Cascadia Code", "SF Mono", Consolas, monospace;
+    font-size: 11.5px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
+  .tg-entry-date {
+    font-family: ui-monospace, "Cascadia Code", "SF Mono", Consolas, monospace;
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  .tg-entry-field { font-size: 13.5px; margin: 4px 0; line-height: 1.5; }
+  .tg-entry-field b { color: var(--muted); font-weight: 600; }
+
+  .tg-empty {
+    color: var(--muted);
+    font-size: 13.5px;
+    padding: 18px 0;
+  }
+
+  .tg-copybtn { font-size: 11.5px; padding: 5px 10px; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .tg-entry { transform: none !important; }
+  }
+</style>
+
+<div class="tg-root">
+  <div class="tg-page">
+    <div class="tg-header">
+      <div class="tg-eyebrow">Thinking Gym — Field Notebook</div>
+      <h1 class="tg-title">Practice a rep</h1>
+      <p class="tg-sub">
+        A standalone version of the three Phase-3 reflex drills from the "Thinking in Public" curriculum. Paste in a claim or position — your own, or one you found — and run the drill. Saved locally in this browser. The full app (with live Reddit/RSS sourcing) lives in the GitHub repo.
+      </p>
+    </div>
+
+    <div class="tg-tabs" role="tablist" id="tg-tabs"></div>
+
+    <div id="tg-drill-area"></div>
+
+    <div class="tg-journal-head">
+      <h2>Journal</h2>
+      <span class="tg-journal-count" id="tg-journal-count">0 entries</span>
+    </div>
+    <div id="tg-journal"></div>
+  </div>
+</div>
+
+<script>
+(function () {
+  const STORAGE_KEY = "thinking-gym-artifact-journal";
+
+  const DRILLS = {
+    "3in3": {
+      label: "3-in-3",
+      instructions: "Take a claim, yours or someone else's. Write three distinct counter-arguments in three minutes. Not devil's-advocate-for-fun, actually try to win. Speed matters more than polish here — if you freeze, notice where exactly you froze.",
+      timerSeconds: 180,
+      fields: [
+        { key: "claim", label: "The claim", rows: 2 },
+        { key: "c1", label: "Counter-argument 1", rows: 2 },
+        { key: "c2", label: "Counter-argument 2", rows: 2 },
+        { key: "c3", label: "Counter-argument 3", rows: 2 },
+      ],
+    },
+    steelman: {
+      label: "Steelman",
+      instructions: "Pick a position you disagree with. Before you're allowed to critique it, write the strongest possible version of it — the version its smartest defender would give, not the weakest strawman. Only then write your response.",
+      fields: [
+        { key: "position", label: "The position you disagree with", rows: 2 },
+        { key: "steelman", label: "Steelman it (4-5 sentences)", rows: 4 },
+        { key: "response", label: "Your response, now that it's steelmanned", rows: 4 },
+      ],
+    },
+    devil: {
+      label: "Devil's Advocate",
+      instructions: "Pick something you actually believe, ideally something with weight to it. Write the best case against it, 200-300 words, as if you were paid to argue it and needed to win. Uncomfortable on purpose.",
+      fields: [
+        { key: "belief", label: "Something you actually believe", rows: 2 },
+        { key: "argument", label: "The best case against it (200-300 words)", rows: 8 },
+      ],
+    },
+  };
+
+  const tabsEl = document.getElementById("tg-tabs");
+  const areaEl = document.getElementById("tg-drill-area");
+  const journalEl = document.getElementById("tg-journal");
+  const journalCountEl = document.getElementById("tg-journal-count");
+
+  let activeDrill = "3in3";
+  let timerState = { remaining: DRILLS["3in3"].timerSeconds, running: false, handle: null };
+
+  function loadJournal() {
+    try {
+      return JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+    } catch (e) {
+      return [];
+    }
+  }
+
+  function saveJournalEntry(entry) {
+    const entries = loadJournal();
+    entries.unshift(entry);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
+  }
+
+  function wordCount(text) {
+    const t = (text || "").trim();
+    return t ? t.split(/\s+/).length : 0;
+  }
+
+  function renderTabs() {
+    tabsEl.innerHTML = "";
+    Object.keys(DRILLS).forEach((key) => {
+      const btn = document.createElement("button");
+      btn.className = "tg-tab" + (key === activeDrill ? " active" : "");
+      btn.textContent = DRILLS[key].label;
+      btn.setAttribute("role", "tab");
+      btn.addEventListener("click", () => {
+        activeDrill = key;
+        if (DRILLS[key].timerSeconds) {
+          resetTimer(DRILLS[key].timerSeconds);
+        }
+        renderTabs();
+        renderDrill();
+      });
+      tabsEl.appendChild(btn);
+    });
+  }
+
+  function resetTimer(seconds) {
+    clearInterval(timerState.handle);
+    timerState = { remaining: seconds, running: false, handle: null };
+  }
+
+  function formatTime(s) {
+    const mm = Math.floor(s / 60);
+    const ss = s % 60;
+    return mm + ":" + String(ss).padStart(2, "0");
+  }
+
+  function renderDrill() {
+    const drill = DRILLS[activeDrill];
+    areaEl.innerHTML = "";
+
+    const card = document.createElement("div");
+    card.className = "tg-card";
+
+    const instr = document.createElement("p");
+    instr.className = "tg-instructions";
+    instr.textContent = drill.instructions;
+    card.appendChild(instr);
+
+    if (drill.timerSeconds) {
+      const row = document.createElement("div");
+      row.className = "tg-timer-row";
+
+      const dot = document.createElement("span");
+      dot.className = "tg-dot";
+      row.appendChild(dot);
+
+      const timeEl = document.createElement("span");
+      timeEl.className = "tg-timer tg-mono";
+      timeEl.textContent = formatTime(timerState.remaining);
+      row.appendChild(timeEl);
+
+      const startBtn = document.createElement("button");
+      startBtn.className = "tg-btn primary";
+      startBtn.textContent = timerState.remaining === drill.timerSeconds ? "Start" : (timerState.running ? "Pause" : "Resume");
+      startBtn.addEventListener("click", () => {
+        if (timerState.running) {
+          clearInterval(timerState.handle);
+          timerState.running = false;
+        } else {
+          timerState.running = true;
+          timerState.handle = setInterval(() => {
+            timerState.remaining -= 1;
+            if (timerState.remaining <= 0) {
+              timerState.remaining = 0;
+              timerState.running = false;
+              clearInterval(timerState.handle);
+            }
+            updateTimerUI();
+          }, 1000);
+        }
+        updateTimerUI();
+      });
+      row.appendChild(startBtn);
+
+      const resetBtn = document.createElement("button");
+      resetBtn.className = "tg-btn";
+      resetBtn.textContent = "Reset";
+      resetBtn.addEventListener("click", () => {
+        resetTimer(drill.timerSeconds);
+        updateTimerUI();
+      });
+      row.appendChild(resetBtn);
+
+      card.appendChild(row);
+
+      card._timerRefs = { dot, timeEl, startBtn };
+    }
+
+    const inputs = {};
+    drill.fields.forEach((field) => {
+      const wrap = document.createElement("div");
+      wrap.className = "tg-field";
+
+      const label = document.createElement("label");
+      label.className = "tg-label";
+      label.textContent = field.label;
+      wrap.appendChild(label);
+
+      const textarea = document.createElement("textarea");
+      textarea.className = "tg-textarea";
+      textarea.rows = field.rows || 3;
+      wrap.appendChild(textarea);
+
+      inputs[field.key] = textarea;
+      card.appendChild(wrap);
+    });
+
+    if (activeDrill === "devil") {
+      const wc = document.createElement("p");
+      wc.className = "tg-label";
+      wc.style.marginTop = "4px";
+      wc.textContent = "0 words (target 200-300)";
+      card.appendChild(wc);
+      inputs.argument.addEventListener("input", () => {
+        const n = wordCount(inputs.argument.value);
+        wc.textContent = n + " words (target 200-300)";
+        wc.style.color = n >= 200 && n <= 300 ? "var(--good)" : "var(--muted)";
+      });
+    }
+
+    const actions = document.createElement("div");
+    actions.className = "tg-actions";
+
+    const saveBtn = document.createElement("button");
+    saveBtn.className = "tg-btn primary";
+    saveBtn.textContent = "Save entry";
+    actions.appendChild(saveBtn);
+
+    const copyBtn = document.createElement("button");
+    copyBtn.className = "tg-btn";
+    copyBtn.textContent = "Copy for critique";
+    actions.appendChild(copyBtn);
+
+    card.appendChild(actions);
+
+    const note = document.createElement("p");
+    note.className = "tg-note";
+    note.style.display = "none";
+    note.textContent = "Saved to your journal.";
+    card.appendChild(note);
+
+    function currentInput() {
+      const out = {};
+      drill.fields.forEach((f) => (out[f.key] = inputs[f.key].value));
+      return out;
+    }
+
+    function buildMarkdown() {
+      const values = currentInput();
+      const lines = ["**" + drill.label + "**", ""];
+      drill.fields.forEach((f) => {
+        lines.push("**" + f.label + "**", values[f.key] || "", "");
+      });
+      return lines.join("\n");
+    }
+
+    saveBtn.addEventListener("click", () => {
+      const values = currentInput();
+      const allFilled = drill.fields.every((f) => values[f.key].trim());
+      if (!allFilled) return;
+      saveJournalEntry({
+        id: String(Date.now()),
+        drillType: activeDrill,
+        label: drill.label,
+        date: new Date().toISOString().slice(0, 10),
+        input: values,
+      });
+      note.style.display = "block";
+      renderJournal();
+      setTimeout(() => (note.style.display = "none"), 2500);
+    });
+
+    copyBtn.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(buildMarkdown());
+        copyBtn.textContent = "Copied!";
+        setTimeout(() => (copyBtn.textContent = "Copy for critique"), 1600);
+      } catch (e) {
+        copyBtn.textContent = "Select & copy manually";
+      }
+    });
+
+    areaEl.appendChild(card);
+    updateTimerUI();
+  }
+
+  function updateTimerUI() {
+    const card = areaEl.querySelector(".tg-card");
+    if (!card || !card._timerRefs) return;
+    const drill = DRILLS[activeDrill];
+    const { dot, timeEl, startBtn } = card._timerRefs;
+    timeEl.textContent = formatTime(timerState.remaining);
+    timeEl.classList.toggle("warn", timerState.remaining <= 10 && timerState.remaining > 0 && timerState.running);
+    dot.classList.toggle("running", timerState.running);
+    startBtn.textContent = timerState.remaining === drill.timerSeconds
+      ? "Start"
+      : timerState.remaining === 0
+      ? "Done"
+      : (timerState.running ? "Pause" : "Resume");
+    startBtn.disabled = timerState.remaining === 0;
+  }
+
+  function renderJournal() {
+    const entries = loadJournal();
+    journalCountEl.textContent = entries.length + (entries.length === 1 ? " entry" : " entries");
+    journalEl.innerHTML = "";
+
+    if (entries.length === 0) {
+      const empty = document.createElement("p");
+      empty.className = "tg-empty";
+      empty.textContent = "No entries yet — run a drill above and save it.";
+      journalEl.appendChild(empty);
+      return;
+    }
+
+    entries.forEach((entry) => {
+      const el = document.createElement("div");
+      el.className = "tg-entry";
+
+      const head = document.createElement("div");
+      head.className = "tg-entry-head";
+
+      const type = document.createElement("span");
+      type.className = "tg-entry-type";
+      type.textContent = entry.label;
+      head.appendChild(type);
+
+      const date = document.createElement("span");
+      date.className = "tg-entry-date";
+      date.textContent = entry.date;
+      head.appendChild(date);
+
+      el.appendChild(head);
+
+      Object.entries(entry.input).forEach(([key, value]) => {
+        if (!value) return;
+        const p = document.createElement("p");
+        p.className = "tg-entry-field";
+        const b = document.createElement("b");
+        b.textContent = key + ": ";
+        p.appendChild(b);
+        p.appendChild(document.createTextNode(value));
+        el.appendChild(p);
+      });
+
+      journalEl.appendChild(el);
+    });
+  }
+
+  renderTabs();
+  renderDrill();
+  renderJournal();
+})();
+</script>
