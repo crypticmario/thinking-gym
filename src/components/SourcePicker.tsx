@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { api } from "@/lib/api";
 import type { DrillSource, SourceType } from "@/lib/types";
 import { Button, TextArea } from "@/components/Card";
@@ -16,6 +16,25 @@ export function SourcePicker({
   const [source, setSource] = useState<DrillSource | null>(null);
   const [manualText, setManualText] = useState("");
   const [manualTitle, setManualTitle] = useState("");
+  const didAutoLoad = useRef(false);
+
+  useEffect(() => {
+    if (didAutoLoad.current) return;
+    didAutoLoad.current = true;
+    try {
+      const raw = sessionStorage.getItem("pendingSource");
+      if (raw) {
+        sessionStorage.removeItem("pendingSource");
+        const { sourceType, source: preloaded } = JSON.parse(raw) as {
+          sourceType: SourceType;
+          source: DrillSource;
+        };
+        setSource(preloaded);
+        setMode("fetched");
+        onChange({ sourceType, source: preloaded });
+      }
+    } catch {}
+  }, [onChange]);
 
   async function fetchFresh() {
     setLoading(true);

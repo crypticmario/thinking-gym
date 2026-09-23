@@ -1,4 +1,4 @@
-import type { DrillSource, DrillType, Entry, MentalModel, SourceType, Settings } from "./types";
+import type { DrillSource, DrillType, Entry, FeedItem, MentalModel, SourceType, Settings } from "./types";
 
 async function jsonFetch<T>(url: string, init?: RequestInit): Promise<T> {
   const res = await fetch(url, init);
@@ -18,8 +18,16 @@ export interface DashboardData {
   modelStats: { total: number; untouched: number; totalExposure: number };
 }
 
+export interface FeedData {
+  items: FeedItem[];
+  drills: DrillType[];
+  errors?: string[];
+}
+
 export const api = {
   dashboard: () => jsonFetch<DashboardData>("/api/dashboard"),
+
+  feed: () => jsonFetch<FeedData>("/api/feed"),
 
   source: (kind: SourceType | "any" = "any") =>
     jsonFetch<{ sourceType: SourceType; source: DrillSource }>(`/api/source?kind=${kind}`),

@@ -1,13 +1,7 @@
-import { JSONFilePreset } from "lowdb/node";
-import fs from "fs";
-import path from "path";
 import type { DbSchema } from "./types";
 import { MODEL_SEED } from "./modelSeed";
 
-const DATA_DIR = path.join(process.cwd(), "data");
-const DB_PATH = path.join(DATA_DIR, "db.json");
-
-function defaultData(): DbSchema {
+export function defaultData(): DbSchema {
   return {
     startedAt: null,
     entries: [],
@@ -18,23 +12,32 @@ function defaultData(): DbSchema {
       lastSeen: null,
     })),
     settings: {
-      subreddits: ["changemyview", "AskPhilosophy", "PoliticalDiscussion", "TrueAskReddit"],
+      subreddits: [
+        "changemyview",
+        "AskPhilosophy",
+        "PoliticalDiscussion",
+        "TrueAskReddit",
+        "NeutralPolitics",
+        "ExplainBothSides",
+      ],
       rssFeeds: [
         { name: "NYT Opinion", url: "https://rss.nytimes.com/services/xml/rss/nyt/Opinion.xml" },
         { name: "Aeon", url: "https://aeon.co/feed.rss" },
+        { name: "The Guardian Opinion", url: "https://www.theguardian.com/commentisfree/rss" },
+        { name: "Vox", url: "https://www.vox.com/rss/index.xml" },
+        { name: "Reason", url: "https://reason.com/feed/" },
       ],
     },
   };
 }
 
-// Next.js can bundle each route handler as its own module instance, so a
-// module-level cached db/promise would go stale across routes (writes in one
-// route wouldn't be visible from another's in-memory copy). JSONFilePreset's
-// db.read() always re-reads the file, so calling it fresh per request keeps
-// every route reading the current on-disk state instead.
-export function getDb() {
-  if (!fs.existsSync(DATA_DIR)) {
-    fs.mkdirSync(DATA_DIR, { recursive: true });
+const USE_PG = !!(process.env.DATABASE_URL || process.env.POSTGRES_URL);
+
+export async function getDb() {
+  if (USE_PG) {
+    const { getPgDb } = await import("./db-pg");
+    return getPgDb();
   }
-  return JSONFilePreset<DbSchema>(DB_PATH, defaultData());
+  const { getLocalDb } = await import("./db-local");
+  return getLocalDb();
 }

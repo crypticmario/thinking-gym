@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
 import { fetchSubredditItems, pickRandom } from "@/lib/reddit";
 import { fetchFeedItems } from "@/lib/rss";
+import { fetchHNItems } from "@/lib/hackernews";
 import type { SourceType } from "@/lib/types";
 
 export async function GET(req: NextRequest) {
@@ -9,7 +10,13 @@ export async function GET(req: NextRequest) {
   const kindParam = (req.nextUrl.searchParams.get("kind") || "any") as SourceType | "any";
   const { subreddits, rssFeeds } = db.data.settings;
 
-  const kind: SourceType = kindParam === "any" ? (Math.random() < 0.5 ? "reddit" : "rss") : kindParam;
+  let kind: SourceType;
+  if (kindParam === "any") {
+    const roll = Math.random();
+    kind = roll < 0.4 ? "rss" : roll < 0.7 ? "reddit" : "hackernews";
+  } else {
+    kind = kindParam;
+  }
 
   try {
     if (kind === "reddit") {
@@ -19,6 +26,11 @@ export async function GET(req: NextRequest) {
       const item = pickRandom(items);
       if (!item) throw new Error(`No usable posts found in r/${sub} right now`);
       return NextResponse.json({ sourceType: "reddit", source: item });
+    } else if (kind === "hackernews") {
+      const items = await fetchHNItems();
+      const item = pickRandom(items);
+      if (!item) throw new Error("No usable Ask HN posts right now");
+      return NextResponse.json({ sourceType: "hackernews", source: item });
     } else {
       if (rssFeeds.length === 0) throw new Error("No RSS feeds configured");
       const feed = rssFeeds[Math.floor(Math.random() * rssFeeds.length)];

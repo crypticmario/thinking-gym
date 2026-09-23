@@ -11,7 +11,7 @@ export type DrillType =
   | "so-what"
   | "post-draft";
 
-export type SourceType = "reddit" | "rss" | "manual";
+export type SourceType = "reddit" | "rss" | "hackernews" | "manual";
 
 export interface DrillSource {
   title: string;
@@ -47,6 +47,13 @@ export interface MentalModel {
 export interface Settings {
   subreddits: string[];
   rssFeeds: { name: string; url: string }[];
+}
+
+export interface FeedItem {
+  id: string;
+  sourceType: SourceType;
+  source: DrillSource;
+  suggestedDrill: DrillType;
 }
 
 export interface DbSchema {
