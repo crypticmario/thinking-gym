@@ -1,5 +1,6 @@
 import type { DrillSource, DrillType, Entry, FeedItem, MentalModel, SourceType, Settings } from "./types";
 import type { CritiqueResult } from "./ai";
+import type { WorkedExample } from "./tutorials";
 
 async function jsonFetch<T>(url: string, init?: RequestInit): Promise<T> {
   const res = await fetch(url, init);
@@ -75,6 +76,13 @@ export const api = {
     }),
 
   aiStatus: () => jsonFetch<{ configured: boolean }>("/api/ai-status"),
+
+  tutorialExample: (drillType: string) =>
+    jsonFetch<{ example: WorkedExample }>("/api/tutorial-example", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ drillType }),
+    }),
 
   settings: () => jsonFetch<{ settings: Settings }>("/api/settings"),
 
