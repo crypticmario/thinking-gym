@@ -3,6 +3,7 @@ import { getDb } from "@/lib/db";
 import { fetchSubredditItems } from "@/lib/reddit";
 import { fetchFeedItems } from "@/lib/rss";
 import { fetchHNItems } from "@/lib/hackernews";
+import { curateFeedItems, isAIConfigured } from "@/lib/ai";
 import { currentDayNumber, todaysDrills } from "@/lib/curriculum";
 import type { DrillSource, FeedItem, SourceType } from "@/lib/types";
 
@@ -80,8 +81,8 @@ export async function GET() {
     }
   }
 
-  const selected = shuffle(pool).slice(0, TARGET_ITEMS);
-  const items: FeedItem[] = selected.map((s, i) => ({
+  const candidates = shuffle(pool).slice(0, TARGET_ITEMS * 2);
+  let rawItems: FeedItem[] = candidates.map((s, i) => ({
     id: makeId(),
     sourceType: s.type,
     source: s.item,
@@ -91,9 +92,22 @@ export async function GET() {
       "argument-anatomy",
   }));
 
+  let aiCurated = false;
+  if (isAIConfigured() && rawItems.length > TARGET_ITEMS) {
+    try {
+      rawItems = await curateFeedItems(rawItems);
+      aiCurated = true;
+    } catch {
+      errors.push("AI curation failed, showing unfiltered feed");
+    }
+  }
+
+  const items = rawItems.slice(0, TARGET_ITEMS);
+
   return NextResponse.json({
     items,
     drills,
+    aiCurated,
     errors: errors.length > 0 ? errors : undefined,
   });
 }

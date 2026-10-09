@@ -68,7 +68,7 @@ export default function DashboardPage() {
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold">Today&apos;s Feed</h2>
           <span className="text-xs text-neutral-500">
-            Fresh examples to practice with
+            {feed?.aiCurated ? "AI-curated for argument quality" : "Fresh examples to practice with"}
           </span>
         </div>
 

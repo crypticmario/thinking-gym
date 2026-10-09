@@ -1,4 +1,5 @@
 import type { DrillSource, DrillType, Entry, FeedItem, MentalModel, SourceType, Settings } from "./types";
+import type { CritiqueResult } from "./ai";
 
 async function jsonFetch<T>(url: string, init?: RequestInit): Promise<T> {
   const res = await fetch(url, init);
@@ -21,6 +22,7 @@ export interface DashboardData {
 export interface FeedData {
   items: FeedItem[];
   drills: DrillType[];
+  aiCurated?: boolean;
   errors?: string[];
 }
 
@@ -59,6 +61,20 @@ export const api = {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
     }),
+
+  critique: (payload: {
+    drillType: DrillType;
+    input: Record<string, string>;
+    source?: DrillSource;
+    modelName?: string;
+  }) =>
+    jsonFetch<{ critique: CritiqueResult }>("/api/critique", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    }),
+
+  aiStatus: () => jsonFetch<{ configured: boolean }>("/api/ai-status"),
 
   settings: () => jsonFetch<{ settings: Settings }>("/api/settings"),
 

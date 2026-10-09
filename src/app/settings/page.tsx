@@ -10,6 +10,7 @@ export default function SettingsPage() {
   const [subredditsText, setSubredditsText] = useState("");
   const [feeds, setFeeds] = useState<{ name: string; url: string }[]>([]);
   const [saved, setSaved] = useState(false);
+  const [aiConfigured, setAiConfigured] = useState<boolean | null>(null);
 
   useEffect(() => {
     api.settings().then(({ settings }) => {
@@ -17,6 +18,7 @@ export default function SettingsPage() {
       setSubredditsText(settings.subreddits.join("\n"));
       setFeeds(settings.rssFeeds);
     });
+    api.aiStatus().then(({ configured }) => setAiConfigured(configured)).catch(() => setAiConfigured(false));
   }, []);
 
   async function save() {
@@ -88,6 +90,39 @@ export default function SettingsPage() {
       </Card>
 
       <Button onClick={save}>{saved ? "Saved!" : "Save settings"}</Button>
+
+      <Card>
+        <h2 className="mb-2 font-medium">AI Integration</h2>
+        {aiConfigured === null ? (
+          <p className="text-sm text-neutral-500">Checking…</p>
+        ) : aiConfigured ? (
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="h-2 w-2 rounded-full bg-emerald-500" />
+              <p className="text-sm text-emerald-400">AI critique and smart feed curation are active.</p>
+            </div>
+            <p className="mt-2 text-xs text-neutral-500">
+              Powered by Claude Haiku. After each drill, you&apos;ll get instant feedback on your thinking.
+              Your feed is also filtered for content with strong, arguable positions.
+            </p>
+          </div>
+        ) : (
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="h-2 w-2 rounded-full bg-neutral-600" />
+              <p className="text-sm text-neutral-400">AI features are not configured.</p>
+            </div>
+            <p className="mt-2 text-xs text-neutral-500">
+              To enable AI critique and smart feed curation, set the <code className="text-neutral-300">ANTHROPIC_API_KEY</code> environment variable.
+            </p>
+            <p className="mt-1 text-xs text-neutral-500">
+              Local: add <code className="text-neutral-300">ANTHROPIC_API_KEY=sk-ant-...</code> to a <code className="text-neutral-300">.env.local</code> file.
+              <br />
+              Vercel: add it under Project Settings → Environment Variables.
+            </p>
+          </div>
+        )}
+      </Card>
     </div>
   );
 }
